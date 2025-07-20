@@ -146,8 +146,8 @@ export default function (view) {
             const maxWidth = window.screen.width * window.devicePixelRatio * 0.2;
             for (const [, info] of Object.entries(trickplayResolutions)) {
                 if (!bestWidth
-                        || (info.Width < bestWidth && bestWidth > maxWidth) // Objects not guaranteed to be sorted in any order, first width might be > maxWidth.
-                        || (info.Width > bestWidth && info.Width <= maxWidth)) {
+                    || (info.Width < bestWidth && bestWidth > maxWidth) // Objects not guaranteed to be sorted in any order, first width might be > maxWidth.
+                    || (info.Width > bestWidth && info.Width <= maxWidth)) {
                     bestWidth = info.Width;
                 }
             }
@@ -950,7 +950,7 @@ export default function (view) {
 
                 // show subtitle offset feature only if player and media support it
                 const showSubOffset = playbackManager.supportSubtitleOffset(player)
-                        && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
+                    && playbackManager.canHandleOffsetOnCurrentSubtitle(player);
 
                 playerSettingsMenu.show({
                     mediaType: 'Video',
@@ -1116,18 +1116,18 @@ export default function (view) {
         });
 
         /**
-            * Only show option if:
-            * - player has support
-            * - has more than 1 subtitle track
-            * - has valid secondary tracks
-            * - primary subtitle is not off
-            * - primary subtitle has support
-            */
+         * Only show option if:
+         * - player has support
+         * - has more than 1 subtitle track
+         * - has valid secondary tracks
+         * - primary subtitle is not off
+         * - primary subtitle has support
+         */
         const currentTrackCanAddSecondarySubtitle = playbackManager.playerHasSecondarySubtitleSupport(player)
-                && streams.length > 1
-                && secondaryStreams.length > 0
-                && currentIndex !== -1
-                && playbackManager.trackHasSecondarySubtitleSupport(playbackManager.getSubtitleStream(player, currentIndex), player);
+            && streams.length > 1
+            && secondaryStreams.length > 0
+            && currentIndex !== -1
+            && playbackManager.trackHasSecondarySubtitleSupport(playbackManager.getSubtitleStream(player, currentIndex), player);
 
         if (currentTrackCanAddSecondarySubtitle) {
             const secondarySubtitleMenuItem = {
@@ -1185,9 +1185,9 @@ export default function (view) {
     }
 
     /**
-         * Clicked element.
-         * To skip 'click' handling on Firefox/Edge.
-         */
+     * Clicked element.
+     * To skip 'click' handling on Firefox/Edge.
+     */
     let clickedElement;
 
     function onClickCapture(e) {
@@ -1409,6 +1409,30 @@ export default function (view) {
                     subtitleSyncOverlay?.incrementOffset();
                 }
                 break;
+            case ',': {
+                e.preventDefault();
+                const mediaSource = playbackManager.currentMediaSource(currentPlayer);
+                const videoStream = mediaSource.MediaStreams.find(s => s.Type === 'Video');
+                const framerate = videoStream?.RealFrameRate || 30;
+                const ticksPerFrame = TICKS_PER_SECOND / framerate;
+                playbackManager.seekRelative(-ticksPerFrame, currentPlayer);
+                hideOsd();
+                break;
+            }
+            case '.': {
+                e.preventDefault();
+                const mediaSource = playbackManager.currentMediaSource(currentPlayer);
+                const videoStream = mediaSource.MediaStreams.find(s => s.Type === 'Video');
+                const framerate = videoStream?.RealFrameRate || 30;
+                const ticksPerFrame = TICKS_PER_SECOND / framerate;
+                playbackManager.seekRelative(ticksPerFrame, currentPlayer);
+                hideOsd();
+                break;
+            }
+            case '/': {
+                e.preventDefault();
+                toggleOsd();
+            }
         }
     }
 
